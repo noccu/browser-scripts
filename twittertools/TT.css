@@ -1,0 +1,200 @@
+.tt-cont {
+    position: absolute;
+    left: 100%;
+    top: 0;
+    margin-left: 0.5rem;
+    height: 100px;
+    width: 100px;
+    line-height: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+}
+
+.tt-item {
+    height: calc(50% - 0.2rem);
+    width: calc(50% - 0.2rem);
+    background-color: rgba(230, 236, 240, 0.4);
+    border-radius: 2px;
+    margin: 0.1rem;
+    line-height: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+}
+
+.tt-link-dl {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.tt-thumb-dl {
+    max-height: 120%;
+    max-width: 120%;
+    flex: 0 0 auto;
+    z-index: -1;
+}
+
+/*Adjusting Twitter a bit. WorksOnMyMachine™*/
+.Grid-cell.u-size1of3:last-child {
+    margin-left: 110px;
+    position: absolute;
+    max-width: 25%;
+}
+
+-------------------------------------- Content-injected version below
+
+.tt-cont {
+    margin: 0.1rem;
+    max-height: 30px;
+    max-width: 40%;
+    line-height: 0;
+    box-sizing: border-box;
+    display: inline-flex;
+    justify-content: flex-end;
+    float: right;
+}
+.tt-item {
+    height: 26px;
+    width: 26px;
+    border-radius: 2px;
+    margin: 0.1rem;
+    line-height: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    transition: width 0.6s ease-in, height 0.6s ease-in;
+}
+.tt-item:hover {
+    height: 50px;
+    width: 50px;
+}
+.tt-link-dl {
+    display: flex;
+    justify-content: center;
+    align-items: center;;
+}
+.tt-thumb-dl {
+    max-height: 120%;
+    max-width: 120%;
+    flex: 0 0 auto;
+    opacity: 0.6;
+    transition: opacity 0.6s linear !important;
+}
+.tt-thumb-dl:hover {
+    opacity: 1;
+}
+
+    
+
+-----------Footer/Action Injection-------------
+
+document.addEventListener("click", ToggleContainer);
+    
+function ToggleContainer(e) {
+     if( TT.openCont ) {
+         TT.openCont.classList.remove("open");
+         TT.openCont = null;
+     }
+     /*//CheckClass(e ,"");
+     //FindClass(e, "dropdown");*/
+     if ( e.target.classList.contains("tt-open-cont") ) { 
+         let d = e.target.getElementsByClassName("dropdown")[0]; 
+         d.classList.add("open");
+         TT.openCont = d;
+    }
+}
+    
+
+
+<div class='ProfileTweet-action tt-dl'>
+    <button class='ProfileTweet-actionButton u-textUserColorHover tt-open-cont'>
+        <div class='IconContainer js-tooltip tt-hide-events' data-original-title='Download Content'>
+            <span class='Icon Icon--medium Icon-tt-dl'></span>
+        </div>
+        <div class='dropdown tt-cont-align'>    
+            <div class='dropdown-menu tt-cont'>
+                <div class='dropdown-caret caret-up'> <div class='caret-outer caret-up-outer'></div> <div class='caret-inner caret-up-inner'></div> </div>
+                <note tt-items go here></note>
+            </div>
+        </div>
+    </button>
+</div>
+    
+
+/*---CSS:----*/
+
+.dropdown-caret.caret-up {
+    bottom: -10px;
+    top: auto;
+    left: calc(50% - 9px);
+}
+.caret-outer.caret-up-outer {
+    border-top: 10px solid rgba(0,0,0,0.1);
+    border-bottom: 0;
+    border-top-color: rgba(0,0,0,0.1);
+}
+.caret-inner.caret-up-inner {
+    border-top: 9px solid #fff;
+    border-bottom: 0;
+    top: 0;
+    /* left: 0; */
+}
+.tt-cont-align {
+    position: absolute;
+    width: 300px;
+    bottom: 100%;
+    left: calc(-150px + 25%);
+    text-align: center;
+}
+.Icon-tt-dl:before {
+    content: '\\2913';
+}
+.Icon--medium.Icon-tt-dl {
+    padding-bottom: 2px;
+}
+.ProfileTweet-actionButton.tt-open-cont {
+    line-height: 0;
+    width: 100%;
+    text-align: left;
+}
+.ProfileTweet-actionButton.tt-open-cont:focus {
+    color: hotpink !important;
+    box-shadow: none;
+}
+.dropdown.open .tt-cont {
+    margin: 0.1rem;
+    display: inline-flex;
+    justify-content: center;
+    position: relative;
+    float: none;
+    padding: 0.4rem;
+    background-color: white;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+.tt-item {
+    height: 50px;
+    width: 50px;
+    border-radius: 2px;
+    margin: 0.3rem;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}
+.tt-link-dl {
+    display: flex;
+    justify-content: center;
+    align-items: center;;
+}
+.tt-thumb-dl {
+    max-height: 125%;
+    max-width: 125%;
+    flex: 0 0 auto;
+}
+.tt-hide-events {
+    pointer-events: none;
+}

@@ -1,0 +1,72 @@
+ <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="shortcut icon" href="chrome-extension://eggkanocgddhmamlbiijnphhppkpkmkl/img/favicon.png">
+    <title>Tabs Outliner</title>
+    <link href="chrome-extension://eggkanocgddhmamlbiijnphhppkpkmkl/tree/css/correlatestyle.css" rel="stylesheet" type="text/css">
+</head>
+
+<body id="ID_activeSessionTreeScrollableContainer">			    
+    <div id="mainToolbar" class="mainToolbarContainer">
+        <div class="mainToolbarInnerArea">
+            <div id="mainToolbarButtonsArea">
+                <a id="newWindowActionLink" class="actionButton actionLink" data-fabric="openwin_" title="Window"></a>
+                <a id="newGroupNodeActionLink" class="actionButton actionLink" data-fabric="group_" title="Group (Saved Window)"></a>
+                <a id="newSeparatorNodeActionLink" class="actionButton actionLink" data-fabric="separator_" title="Separator"></a>
+                <a id="newTextNodeActionLink" class="actionButton actionLink" data-fabric="note_" title="Note"></a>
+                <a id="newGoogleDocNodeActionLink" class="actionButton actionLink" data-fabric="gdoc_" title="Google Doc"></a>
+                <hr>
+                <a id="cloneViewButton" class="actionButton" title="Clone View (C) (Cloned views does not auto scroll on window switch. Use Undo Scroll in the Cloned View to scroll it into the same position as current)"></a>
+                <a id="undoScrollButton" class="actionButton" title="Undo Scroll (S)"></a>
+                <a id="nextOpenWindowButton" class="actionButton" title="Scroll Up To The Next Open Window (W)"></a>
+                <a id="savecloseAllWindowsButton" class="actionButton" title="Save &amp; Close All Open Windows (Q) (closed window nodes will be highlighted till browser restart)"></a>
+                <a id="expandAllButton" class="actionButton" title="Expand All Collapsed Nodes (Can be undone by the next click, useful before performing search by Ctrl-F)"></a>
+                <a id="undoExpandAllButton" class="actionButton hidden" title="Undo Expand All"></a>
+            </div>
+            <a id="backupNowButton" class="actionButton" data-fabric="backupnow_" title="Backup Now" style="display: none;"></a>
+        </div>
+        <div class="mainToolbarInfoSettingsHelpArea">
+            <a id="infoButton" class="aboutButton" title="About"></a>
+            <a id="helpButton" class="aboutButton" title="Help"></a>
+            <a id="settingsButton" class="aboutButton" title="Options"></a>
+        </div>
+    </div>
+    <div id="mainViewMessagesStack" style="padding: 0px;"></div>
+    
+    <script type="text/javascript" src="chrome-extension://eggkanocgddhmamlbiijnphhppkpkmkl/helpBlockText.js?dfgdfg"></script>
+    <script type="text/javascript" src="chrome-extension://eggkanocgddhmamlbiijnphhppkpkmkl/tree/js/animator.js?dfgdfgdf"></script>
+    <script type="text/javascript" src="chrome-extension://eggkanocgddhmamlbiijnphhppkpkmkl/tree/js/modalprompt.js?dfgdfg"></script>
+    <script type="text/javascript" src="chrome-extension://eggkanocgddhmamlbiijnphhppkpkmkl/tree/js/contextmenu.js?fdgdfg"></script>
+    <script type="text/javascript" src="chrome-extension://eggkanocgddhmamlbiijnphhppkpkmkl/tree/js/treeview.js?fgn"></script>
+    <script type="text/javascript" src="chrome-extension://eggkanocgddhmamlbiijnphhppkpkmkl/activesessionview.js?sdsd"></script>
+    <script type="text/javascript" src="chrome-extension://eggkanocgddhmamlbiijnphhppkpkmkl/tree/js/modal.js?dfgdfgg"></script>
+    <script type="text/javascript" src="chrome-extension://eggkanocgddhmamlbiijnphhppkpkmkl/activesessionview_messages.js?gdfhdh"></script>
+    
+    <!-- Custom part -->
+    <script type="text/javascript" src="Tabs Outliner mass import.js" defer></script>
+    <div>
+        <input type="file" id="fileImport" name="file" accept=".txt,.json">
+    </div>
+    <!-- Custom end -->
+    
+    <li id="currentSessionRoot" class="nodeTitleAndSubnodesContainer sessionNTASC NTASC-windowFrame">
+        <div class="nodeTitleContainer sessionNTC NTC-windowFrame expandedsubnodes">
+        <div class="nodeFaviconAndTextHelperContainer session"><img class="node_favicon session_favicon" src="chrome-extension://eggkanocgddhmamlbiijnphhppkpkmkl/img/favicon.png"><span class="node_text session_text" draggable="true">Current Session</span></div>
+        </div>
+
+        <ul class="subnodeslist">
+            <li id="savedwin" class="nodeTitleAndSubnodesContainer savedwinNTASC NTASC-windowFrame">
+                <div class="nodeTitleContainer savedwinNTC NTC-windowFrame expandedsubnodes">
+                    <div class="nodeFaviconAndTextHelperContainer savedwin">
+                        <img class="node_favicon savedwin_favicon" src="chrome-extension://eggkanocgddhmamlbiijnphhppkpkmkl/img/chrome-window-icon-gold.png">
+                        <span class="node_text savedwin_text" draggable="true">Scripted Mass Import</span>
+                    </div>
+                </div>
+                <!-- Replace the following ul -->
+                <ul id="importTarget" class="subnodeslist"></ul>
+            </li>
+        </ul>
+    </li>
+</body>
+</html>
