@@ -1,54 +1,109 @@
 // ==UserScript==
-// @name HLS Downloader
-// @namespace Violentmonkey Scripts
-// @include *
-// @grant none
+// @name        HLS stream downloader
+// @description Allows downloading of video streams in m3u8/ts format. Extracted from my old twitter script, may not work everywhere.
+// @version     0.2
+// @author      noccu
+// @namespace   https://github.com/noccu
+// @match       *://*/*
+// @grant       GM_registerMenuCommand
+// @run-at      document-start
 // ==/UserScript==
 
+'use strict';
+GM_registerMenuCommand("HLS Download", download);
+GM_registerMenuCommand("HLS List", showList);
 
-var dlBtn = document.createElement("a")
-let inj = document.querySelector("#video-actions")
+//Settings
+const useDocTitle = false;
+const list = [];
+var listShown;
 
-dlBtn.className = ("btn btn-default");
-dlBtn.textContent = "HLS Down";
-dlBtn.onclick = function() {
-    let p = prompt("HLS Playlist");
-    if (p !== null) {
-        createVideoURL(p);
+function download(url) {
+    var a = document.createElement("a");
+    a.id = "hlsd"; //for debugging
+    if (!url) {
+        url = prompt("Playlist URL", "url/to/playlist.m3u8");
     }
+
+    if (url && url.startsWith("http")) {
+        createVideoURL(url)
+        .then(vid => {
+            // console.log(vid);
+            a.href = vid;
+            a.download = (prompt("Name") || useDocTitle ? document.title : url.split(/\/|\./).slice(-2,-1)[0]) + ".ts";
+            a.click();
+        })
+    }
+    else { alert("Invalid input") }
 }
 
-inj.appendChild(dlBtn);
+function showList() {
+    if (listShown) {
+        listShown.cont.style.display = "flex";
+        return;
+    }
+    else {
+        let cont = document.createElement("div");
+        cont.style = "position: fixed;display: flex;width: 100%;top: 20%;justify-content: center;"
+        let ul = document.createElement("ul");
+        ul.style = "background-color: black;list-style: none;padding: 1em;color:white;";
+        cont.appendChild(ul);
+        cont.addEventListener("click", e => {
+            if (e.target.url) download(e.target.url);
+            if (!e.shiftKey) {
+                cont.style.display = "none";
+            }
+        });
+        document.body.appendChild(cont);
+        listShown = {cont, ul};
+    }
 
+    list.forEach(e => {
+        let li = document.createElement("li");
+        li.textContent = e.url; //`Download ${e.page}`;
+        li.style.cursor = "pointer";
+        li.url = e.url;
+        listShown.ul.appendChild(li);
+    })
+}
 
-//core functions
-function createVideoURL (url) {
-    let p_fullUrl = getPlaylistData(url)
-    .then( d => { if (d.type == "master" && d.streams.length > 0) {
-                    return getPlaylistData(d.streams.pop().url).then(d2 => fetchVideo(d2.dataParts));
-                  }
-                  else if (d.type == "media" && d.dataParts.length > 0) {
-                    return fetchVideo(d.dataParts);  
-                  }
-                  else {
-                      console.error("No usable playlist data found.");
-                  }
-                });
-    p_fullUrl.catch( e => console.error(e) );
+XMLHttpRequest.prototype.realSend = XMLHttpRequest.prototype.send;
+XMLHttpRequest.prototype.send = function(value) {
+    this.addEventListener("load", function ic () {
+        if (/\.m3u8(?:\?|$)/.test(this.responseURL)) {
+            list.push({page: document.title, url: this.responseURL});
+        }
+    }, {passive: true, once: true});
+    this.realSend(value);
+};
 
-    return p_fullUrl.then(u => {
-        console.log(u);
-        let a = document.createElement("a");
-        a.href = u;
-        a.download = document.title + ".ts";
-        a.style.display = "hidden";
-        document.body.appendChild(a);
-        a.click();
-    });
+// Url -> Promise (BlobURL)
+// Coordinates playlist parsing, returns a blob url to full video data
+function createVideoURL(inputUrl) {
+    let p_fullUrl = getPlaylistData(inputUrl)
+        .then(d => {
+            if (d.type == "master") {
+                if (d.streams.length < 1) throw "Found no media playlists in " + d.from;
+                console.log("Found master playlist, fetching streams...");
+                return getPlaylistData(d.streams.pop().url);
+            }
+            else { return d } // passthrough
+        })
+        .then(d => {
+            if (d.type == "media") {
+                if (d.dataParts.length < 1) throw "Found no video parts at " + d.from;
+                console.log("Found stream, fetching parts...");
+                return fetchVideo(d.dataParts);
+            }
+            else throw "Expected media playlist at " + d.from;
+        });
+    p_fullUrl.catch(e => alert(e));
+    return p_fullUrl;
 }
 
 // String (Playlist) -> {PlaylistData}
-// Called with "host/path/file.m3u8[?optional&stuff]"
+// Parses playlists for stream links
+// Called with "origin/path/file.m3u8[?optional&stuff]"
 function getPlaylistData(plUrl) {
     async function getPlaylist(url) {
         let response = await fetch(url);
@@ -59,29 +114,32 @@ function getPlaylistData(plUrl) {
     }
 
     function parse(playlistTextData, r) {
-        var parsedData = {type: '',
-                          streams: [],
-                          dataParts: []
-                         },
+        var parsedData = {
+                type: '',
+                streams: [],
+                dataParts: []
+            },
             lines,
-            host = plUrl.match(/^(https?:\/\/.+\/(?=.+\??))/)[1];
+            host = (new URL(plUrl)).origin;
 
         lines = playlistTextData.split('\n');
         if (lines[0] !== '#EXTM3U') throw 'Playlist parser did not receive an M3U file';
 
-        for (var p, i = 1; i < lines.length; i++) {
+        for (let p, i = 1; i < lines.length; i++) {
             p = lines[i].split(/:|=|,(?![^=,"]*")/);
             if (p[0] == '#EXT-X-STREAM-INF') {
+                let nextLine = lines[++i];
                 parsedData.type = 'master';
                 parsedData.streams.push({
                     bitrate: parseInt(p[4]),
                     res: p[6],
-                    url: host + lines[++i]
+                    url: nextLine.startsWith("http") ? nextLine : host + nextLine
                 });
             }
             else if (p[0] == "#EXTINF") {
+                let nextLine = lines[++i];
                 parsedData.type = "media";
-                parsedData.dataParts.push(host + lines[++i]);
+                parsedData.dataParts.push(nextLine.startsWith("http") ? nextLine : host + nextLine);
             }
         }
 
@@ -100,7 +158,6 @@ function fetchVideo(pd) {
 
     function constructFullBlob(blob, r) {
         partBlobs[blob.idx] = blob.data;
-        dlBtn.textContent = doneCount + "/" + pd.length;
         if (doneCount == pd.length) {
             clearInterval(timeoutInterval);
             let fullBlob = new Blob(partBlobs,{type: "video/MP2T"});
@@ -113,7 +170,7 @@ function fetchVideo(pd) {
 
     async function downloadPart(part, r) {
         console.log("Downloading part " + part.idx);
-        //Try here as await will throw is rejected.
+        //TODO: Error handling as fetch will throw if rejected.
         let response = await fetch(part.url); //fetch
         console.log("Downloaded part " + part.idx);
         if (!response.ok) {
