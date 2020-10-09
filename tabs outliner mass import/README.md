@@ -15,7 +15,5 @@ Your data is imported and you can simply drag and drop to your main Tabs Outline
  
 #### Android (through USB debug)
 
- Set up a route to chrome debug internals:
- adb forward tcp:9222 localabstract:chrome_devtools_remote
- Grab the json data from it at localhost:9222 (can just use browser + devtools network tab)
- Save data as global tabs var and run the function. (in devtools: var tabs = "<json paste here>"
+ Set up a route to chrome debug internals: `adb forward tcp:9222 localabstract:chrome_devtools_remote`  
+ Grab the json data from it at `localhost:9222` (can just use browser + devtools network tab)  
