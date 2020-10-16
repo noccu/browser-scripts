@@ -1,23 +1,25 @@
 // ==UserScript==
 // @name         Pixiv Extra Stats
 // @namespace    https://github.com/noccu
-// @match        https://www.pixiv.net/dashboard*
-// @match        https://www.pixiv.net/manage/*
+// @match        https://www.pixiv.net/*
 // @grant        none
-// @version      1.0
+// @version      1.0.1
 // @description  Add extra stats to the Pixiv dashboard (old and new).
 // @author       noccu
 // ==/UserScript==
 
-(function() {
+(function () {
     'use strict';
-    location.pathname.startsWith("/dash") ? newPixiv() : oldPixiv();
-
+    
+    if (location.pathname.startsWith("/manage")) oldPixiv();
+    else newPixiv();
+    
     function newPixiv() {
         injectCSS();
+        const re_newPixiv = new RegExp("(ajax/dashboard/home)|(ajax/dashboard/works/)");
         if (location.pathname.endsWith("works")) { worksPage(); }
         else if (location.pathname.endsWith("board")) { homePage(); }
-        
+        peekFetch();
         
         //Functions 
         function homePage() {
@@ -51,16 +53,14 @@
                 return {
                     likeRate: (likes / views * 100).toFixed(2),
                     bookmarkRate: (bookmarks / views * 100).toFixed(2),
-                    avgViewsPerDay: (views / ((Date.now() - date) / 86400000)).toFixed(0)
+                    avgViewsPerDay: (views / Math.ceil((Date.now() - date) / 86400000)).toFixed(0)
                 }
             }
 
             waitOn("ul > div.h8luo8-0", e => {
-                document.querySelector(".hb4lga-0").children[1].addEventListener("click", worksPage);
                 e.children.forEach(w => addStats(w, getStats(w)));
             });
-        }
-        
+        }     
         //Works page
         function worksPage() {
             function addStats(values) {
@@ -107,7 +107,6 @@
                     });
                 });
                 OBSERVER.observe(document.getElementsByClassName("sc-1b2i4p6-2")[0], {childList: true});
-                document.querySelector(".hb4lga-0").children[0].addEventListener("click", homePage);
                 addStats(values);
             });
         }
@@ -118,7 +117,6 @@
                 return parseInt(n.replaceAll(",", ""));
             }
         }
-        
         function injectCSS() {
             let css = document.createElement("style");
             css.type = "text/css";
@@ -126,15 +124,24 @@
             css.innerHTML = ".exStats {color: rgb(0, 150, 250);}";
             document.head.appendChild(css);
         }
-        
-        function waitOn(selector, action, interval) {
-            let elm = document.querySelector(selector);
-            if (elm) action(elm);
-            else setTimeout(() => waitOn(selector, action), interval || 500);
+        function peekFetch() {
+            window.oFetch = fetch;
+            window.fetch = function (url, opt) {
+                let m = url.match(re_newPixiv);
+                if (m) {
+                    if (m[1]) {
+                        homePage();
+                    }
+                    else if (m[2]) {
+                        worksPage();
+                    }
+                }
+                return window.oFetch(url, opt);
+            };
         }
     }
 
-    //Thanks cromachina
+    //Code by cromachina
     function oldPixiv() {
         document.body.querySelectorAll('li[class="image-item"]').forEach(function (node)
         {
@@ -148,5 +155,12 @@
                 bookmark_node.append(` (${bookmark_percent}%)`);
             }
         });
+    }
+
+    //Helpers
+    function waitOn(selector, action, interval) {
+        let elm = document.querySelector(selector);
+        if (elm) action(elm);
+        else setTimeout(() => waitOn(selector, action, interval), interval || 500);
     }
 })();
