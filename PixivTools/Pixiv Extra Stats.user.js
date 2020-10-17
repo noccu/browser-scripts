@@ -3,7 +3,7 @@
 // @namespace    https://github.com/noccu
 // @match        https://www.pixiv.net/*
 // @grant        none
-// @version      1.0.1
+// @version      1.1
 // @description  Add extra stats to the Pixiv dashboard (old and new).
 // @author       noccu
 // ==/UserScript==
@@ -63,33 +63,63 @@
         }     
         //Works page
         function worksPage() {
-            function addStats(values) {
-                let stats, likes = 3, bookmarks = 4, views = 5, date = 7;
-                while (likes < values.length) {
-                    if (!values[likes].hasExStats) {
-                        stats = getStats(values, likes, bookmarks, views, date);
-                        values[likes].firstElementChild.firstElementChild.innerHTML += ` (<span class="exStats">${stats.likeRate}</span>%)`;
-                        values[bookmarks].firstElementChild.firstElementChild.innerHTML += ` (<span class="exStats">${stats.bookmarkRate}</span>%)`;
-                        values[views].firstElementChild.firstElementChild.innerHTML += ` (<span class="exStats">${stats.avgViewsPerDay}/day</span>)`;
-                        values[likes].hasExStats = true;
+            var indexCache;
+            //This assumes querySelectorAll returns in order every time... big thonk.
+            function indexColumns () {
+                // if (indexCache) return indexCache;
+                let idx = {}, dom = document.querySelectorAll(".sc-1b2i4p6-22");
+                dom.forEach((e, i) => {
+                    switch (e.firstElementChild.firstElementChild.textContent) {
+                        case "Likes":
+                            idx.likes = i; break;
+                        case "Bookmarks":
+                            idx.bookmarks = i; break;
+                        case "Views":
+                            idx.views = i; break;
+                        case "Date":
+                            idx.date = i; break;
                     }
-                    
-                    likes += 9;
-                    bookmarks += 9;
-                    views += 9;
-                    date += 9;
+                });
+                //Prevent needless processing when observer fires every few lines of scrolling...
+                //We invalidate because user can change columns and I cba with that.
+                indexCache = idx;
+                setTimeout(() => indexCache = undefined, 10000);
+                return {idx, numCols: dom.length, testStat: Object.keys(idx)[0]};
+            }
+            function addStats(dom) {
+                let stats, {idx, numCols, testStat} = indexColumns(), statIdx;
+                let colCounter = idx[testStat];
+                if (!testStat) return;
+                while (colCounter < dom.length) {
+                    if (!dom[colCounter].hasExStats) {
+                        stats = getStats(dom, idx);
+                        for (let stat in idx) {
+                            if (stats[stat]) {
+                                statIdx = idx[stat];
+                                dom[statIdx].firstElementChild.firstElementChild.innerHTML += ` (<span class="exStats">${stats[stat].value}</span>${stats[stat].suffix})`;
+                                dom[statIdx].hasExStats = true;
+                            }
+                            idx[stat] += numCols;
+                        }
+                    }
+                    else {
+                        for (let stat in idx) {
+                            idx[stat] += numCols;
+                        }
+                    }
+                    colCounter += numCols;
                 }
             }
-            function getStats(values, likes, bookmarks, views, date) {
-                views = getNumber(values[views].textContent);
-                likes = getNumber(values[likes].textContent);
-                bookmarks = getNumber(values[bookmarks].textContent);
-                date = new Date(values[date].textContent);
+            function getStats(values, {likes, bookmarks, views, date}) {
+                views = views ? getNumber(values[views].textContent) : 0;
+                likes = likes ? getNumber(values[likes].textContent): 0;
+                bookmarks = bookmarks ? getNumber(values[bookmarks].textContent) : 0;
+                date = date ? new Date(values[date].textContent) : new Date();
                 
                 return {
-                    likeRate: (likes / views * 100).toFixed(2),
-                    bookmarkRate: (bookmarks / views * 100).toFixed(2),
-                    avgViewsPerDay: (views / ((Date.now() - date) / 86400000)).toFixed(0)
+                    likes: {value: (likes / views * 100).toFixed(2), suffix: "%"},
+                    bookmarks: {value: (bookmarks / views * 100).toFixed(2), suffix: "%"},
+                    views: {value: (views / Math.max(((Date.now() - date) / 86400000), 1)).toFixed(0), suffix: ""}
                 }              
             }
 
@@ -97,7 +127,6 @@
                 // iirc getElementsByClassName returns consistently in-order so that's why we use it.
                 const values = document.getElementsByClassName("sc-1b2i4p6-25"); // Live!
                 const OBSERVER = new MutationObserver(m => {
-                    console.log("Observed changes");
                     m.some(r => {
                         if (r.addedNodes.length && r.addedNodes[0].className.startsWith("sc-1b2i4p6-25")) {
                             addStats(values);
