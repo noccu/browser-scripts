@@ -3,9 +3,8 @@
 // @name        What was that tweet!?
 // @namespace   https://github.com/noccu
 // @match       https://twitter.com/home
-// @grant       GM_addStyle
-// @grant       GM_registerMenuCommand
-// @version     1.0
+// @grant       none
+// @version     1.1
 // @author      noccu
 // @description Keeps a list of removed tweets on your timeline.
 // ==/UserScript==
@@ -21,6 +20,7 @@ const LIST = {
     maxSize: 150,
     create() {
         if (!this.listDom) {
+            //hidden list
             let closeBtn = document.createElement("div");
             closeBtn.id = "wt-close";
             closeBtn.textContent = "X";
@@ -31,6 +31,24 @@ const LIST = {
             list.append(closeBtn);
             this.listDom = list;
             document.body.append(list);
+            //open button
+            let target = document.querySelector("nav");
+            if (target) {
+                let btn = document.createElement("div"),
+                    text = document.createElement("span");
+                btn.id = "wt-open";
+                btn.textContent = "🗑";
+                btn.className = "css-18t94o4 r-jwli3a r-1sp51qo";
+                btn.addEventListener("click", this.show.bind(this));
+                text.textContent = "Removed";
+                text.className = "r-1qd0xha r-1b6yd1w r-b88u0q r-1joea0r";
+                btn.append(text);
+                target.append(btn);
+                
+                this.setAppearance(target, text);
+                let o = new MutationObserver(() => this.setAppearance(target, text));
+                o.observe(target, {attributes: true, attributeFilter: ["class"]});
+            }
         }
     },
     add(tweet) {
@@ -64,6 +82,20 @@ const LIST = {
     },
     hide() {
         this.listDom.style.visibility = "hidden";
+    },
+    
+    /**
+     * @param {HTMLElement} nav
+     * @param {HTMLSpanElement} txt
+     */
+    setAppearance(nav, txt) {
+        //full
+        if (nav.classList.contains("r-1habvwh")) {
+            txt.style.display = "initial";
+        }
+        else {
+            txt.style.display = "none"
+        }
     }
 }
 
@@ -83,8 +115,9 @@ function handleChange(records) {
 }
 
 function addCSS() {
-    // @ts-ignore
-    GM_addStyle(`
+    // @ts-
+    let css = document.createElement("style");
+    css.innerHTML = `
         #wt-list {
             position: fixed;
             top: 0;
@@ -100,7 +133,12 @@ function addCSS() {
         }
         #wt-list .r-3s2u2q:hover {
             text-decoration: underline;
-        }     
+        }
+        #wt-open {
+            font-size: xx-large;
+            display: flex;
+            align-items: center;
+        }
         #wt-close {
             color: black;
             position: fixed !important;
@@ -109,7 +147,8 @@ function addCSS() {
             font-size: x-large;
             cursor: pointer;
         }
-    `);
+    `;
+    document.head.append(css);
 }
 
 function observe() {
@@ -145,12 +184,11 @@ function waitOnDOM(selector) {
 
 
 // Main
-LIST.create();
 waitOnDOM("section > div.css-1dbjc4n[aria-label$='Home Timeline'] > div:not([class])")
-    .then(tl => {
+.then(tl => {
+        LIST.create();
         TIMELINE = tl
         addCSS();
         observe();
     });
-// @ts-ignore
-GM_registerMenuCommand("Show removed tweets", LIST.show.bind(LIST))
+    
