@@ -2,9 +2,9 @@
 // ==UserScript==
 // @name        What was that tweet!?
 // @namespace   https://github.com/noccu
-// @match       https://twitter.com/home
+// @match       https://twitter.com/*
 // @grant       none
-// @version     1.1
+// @version     1.1.1
 // @author      noccu
 // @description Keeps a list of removed tweets on your timeline.
 // ==/UserScript==
@@ -115,8 +115,9 @@ function handleChange(records) {
 }
 
 function addCSS() {
-    // @ts-
+    if (document.getElementById("wwt-css")) return;
     let css = document.createElement("style");
+    css.id = "wwt-css"
     css.innerHTML = `
         #wt-list {
             position: fixed;
@@ -151,13 +152,6 @@ function addCSS() {
     document.head.append(css);
 }
 
-function observe() {
-    var o = new MutationObserver(handleChange);
-    o.observe(TIMELINE, {
-        childList: true
-    });
-}
-
 /**
  * @param {string} selector
  * @returns {Promise<Element>}
@@ -174,7 +168,7 @@ function waitOnDOM(selector) {
         }
         if (!check()) {
             let o = new MutationObserver(check);
-            o.observe(document.body, {
+            o.observe(document, {
                 childList: true,
                 subtree: true
             });
@@ -182,13 +176,21 @@ function waitOnDOM(selector) {
     })
 }
 
-
 // Main
-waitOnDOM("section > div.css-1dbjc4n[aria-label$='Home Timeline'] > div:not([class])")
-.then(tl => {
-        LIST.create();
-        TIMELINE = tl
-        addCSS();
-        observe();
-    });
-    
+const MAIN_OBSERVER = new MutationObserver(main);
+const TWEET_OBSERVER = new MutationObserver(handleChange);
+MAIN_OBSERVER.observe(document.head, {attributes: true, attributeFilter: ["href"], childList: true}); //page changes
+main();
+
+function main() {
+    if (location.pathname == "/home") {
+        waitOnDOM("section > div.css-1dbjc4n[aria-label$='Home Timeline'] > div:not([class])")
+        .then(tl => {
+                LIST.create();
+                TIMELINE = tl
+                addCSS();
+                TWEET_OBSERVER.observe(TIMELINE, {childList: true});
+            });
+        return true;
+    }
+}
