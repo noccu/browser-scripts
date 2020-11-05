@@ -4,7 +4,7 @@
 // @namespace   https://github.com/noccu
 // @match       https://twitter.com/*
 // @grant       none
-// @version     1.1.1
+// @version     1.2
 // @author      noccu
 // @description Keeps a list of removed tweets on your timeline.
 // ==/UserScript==
@@ -53,9 +53,14 @@ const LIST = {
     },
     add(tweet) {
         let id = tweet.getElementsByClassName("js-action-profile")[0]?.dataset.tweetId;
-        if (id && !this.list.has(id)) {
-            this.frag.prepend(tweet);
-            this.list.set(id, tweet);
+        if (id) {
+            if (this.list.has(id)) {
+                this.moveToTop(id);
+            }
+            else {
+                this.frag.prepend(tweet);
+                this.list.set(id, tweet);    
+            }
         }
     },
     remove(amount) {
@@ -76,6 +81,10 @@ const LIST = {
         }
         this.listDom.prepend(this.frag);
         if (v) this.listDom.style.visibility = v;
+    },
+    moveToTop(id) {
+        let node = this.list.get(id);
+        if (node) this.listDom.prepend(node);
     },
     show() {
         this.listDom.style.visibility = "visible";
@@ -106,7 +115,7 @@ function handleChange(records) {
     for (let record of records) {
         record.removedNodes.forEach( /** @arg {HTMLElement} node */ node => {
             let images = node.getElementsByTagName("img");
-            if (images.length > 1 && Array.prototype.some.call(images, i => i.alt == "Image")) {
+            if (images.length > 1 && Array.prototype.some.call(images, /** @param {HTMLImageElement} i*/ i => i.alt == "Image" || i.alt.endsWith("video"))) {
                 LIST.add(node);
             }
         })
@@ -117,7 +126,7 @@ function handleChange(records) {
 function addCSS() {
     if (document.getElementById("wwt-css")) return;
     let css = document.createElement("style");
-    css.id = "wwt-css"
+    css.id = "wwt-css";
     css.innerHTML = `
         #wt-list {
             position: fixed;
@@ -191,6 +200,5 @@ function main() {
                 addCSS();
                 TWEET_OBSERVER.observe(TIMELINE, {childList: true});
             });
-        return true;
     }
 }
