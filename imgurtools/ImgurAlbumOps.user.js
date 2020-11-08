@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         Imgur Album Ops
 // @namespace    nImgur
-// @version      1.4
+// @version      1.4.1
 // @description  Adds a few questionably useful management functions to imgur albums.
 // @author       noccu
 // @match        *://imgur.com/a/*
@@ -83,7 +83,7 @@ function updateAlbums() {
             save();
         }
         let xhr = createXhr("GET",
-                            "https://api.imgur.com/3/account/me/albums",
+                            "https://api.imgur.com/3/account/me/albums?perPage=100",
                             complete,
                             x);
         xhr.send();
