@@ -3,7 +3,7 @@
 // @namespace    https://github.com/noccu
 // @match        https://www.pixiv.net/*
 // @grant        none
-// @version      1.2
+// @version      1.2.1
 // @description  Add extra stats to the Pixiv dashboard (old and new).
 // @author       noccu
 // ==/UserScript==
@@ -192,13 +192,15 @@
         function peekFetch() {
             window.oFetch = fetch;
             window.fetch = function (url, opt) {
-                let m = url.match(re_newPixiv);
-                if (m) {
-                    if (m[1]) {
-                        homePage();
-                    }
-                    else if (m[2]) {
-                        worksPage();
+                if (typeof url == "string") {
+                    let m = url.match(re_newPixiv);
+                    if (m) {
+                        if (m[1]) {
+                            homePage();
+                        }
+                        else if (m[2]) {
+                            worksPage();
+                        }
                     }
                 }
                 return window.oFetch(url, opt);
