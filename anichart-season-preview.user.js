@@ -3,10 +3,13 @@
 // @namespace   https://github.com/noccu
 // @match       https://anichart.net/*
 // @grant       GM_addStyle
-// @version     1.0
+// @version     1.1
 // @author      noccu
 // @description Auto-expands descriptions + slightly larger font, x2 speed trailers.
 // ==/UserScript==
+
+// Config
+const PLAYBACK_RATE = 2
 
 // Improve display
 GM_addStyle(`
@@ -26,45 +29,47 @@ GM_addStyle(`
   }
   .description-wrap {
     font-size: 1.25rem !important;
+  }
+  .reveal-external-links.body {
+    padding-bottom: 10px !important
   }`)
 
 // Logic
-const fEvent = new MouseEvent("mouseover")
-const OBSERVER_SHOWS = new MutationObserver(cope);
-const OBSERVER_TRAILER = new MutationObserver(cope);
-const noop = function() {}
+const OBSERVER = new MutationObserver(cope);
+const noop = function () { }
+var CARDS
 
 function expand() {
-    let cards = document.querySelectorAll(".media-card")
-    for (let c of cards) {
-        if (c.__vue__.mouseleave == noop) { continue }
-        c.__vue__.mouseleave = noop
-        c.dispatchEvent(fEvent)
+    for (let c of CARDS) {
+        if (c.expanded || !c.__vue__.media) continue
+        try {
+            let desc = c.getElementsByClassName("description-wrap")[0]
+            desc.innerHTML = c.__vue__.media.description
+            c.expanded = true
+        } catch {}
         // Hack in YT's js api
         try {
             c.__vue__.media.trailer.id += "?enablejsapi=1&autoplay=1&autohide=1"
-        }
-        catch {
-            // noop
-        }
+        } catch {}
     }
 }
 
 function cope(records) {
+    if (records.length == 1) return // Ignore noise
     for (let r of records) {
+        // Ignore own mods
+        if (r.target.className == "description-wrap") return
+        // Trailers
+        if (r.target.id != "app") { break }
         for (let n of r.addedNodes) {
             if (n.nodeType != Node.ELEMENT_NODE) continue
-            if (n.classList.contains("media-card")) {
-                expand()
-                return
-            }
-            else if (n.classList.contains("trailer-wrap")) {
+            if (n.classList.contains("trailer-wrap")) {
                 domExist("iframe.video", 100, 5).then(v => {
                     // v.id = "yt-trailer"
                     v.onload = () => {
                         // let listen = JSON.stringify({event: 'listening', id: v.id})
                         // v.contentWindow.postMessage(listen, "*")
-                        let speed = JSON.stringify({event: 'command', func: 'setPlaybackRate', args:[2, true]})
+                        let speed = JSON.stringify({ event: 'command', func: 'setPlaybackRate', args: [PLAYBACK_RATE, true] })
                         v.contentWindow.postMessage(speed, "*")
                     }
                 })
@@ -72,34 +77,36 @@ function cope(records) {
             }
         }
     }
+    // Newly loaded cards
+    expand()
 }
 
 
 // Util
-function pause (ms) {
-  return new Promise(r => setTimeout(r, ms));
+function pause(ms) {
+    return new Promise(r => setTimeout(r, ms));
 }
 // interval in ms, timeout in s
 async function domExist(selector, interval, timeout) {
-  console.log("checking... ", selector);
-  timeout = timeout * (1000 / interval);
-  let run = 0;
-  while (true && run < timeout) {
-    run++;
-    let domObj = document.querySelector(selector);
-    if (domObj) {
-      return domObj;
+    console.log("checking... ", selector);
+    timeout = timeout * (1000 / interval);
+    let run = 0;
+    while (true && run < timeout) {
+        run++;
+        let domObj = document.querySelector(selector);
+        if (domObj) {
+            return domObj;
+        }
+        await pause(interval);
     }
-    await pause(interval);
-  }
-  throw new Error("Dom search failed");
+    throw new Error("Dom search failed");
 }
 
-domExist(".card-list", 500, 15)
+domExist(".chart-view div", 500, 15)
     .then(e => {
+        CARDS = e.getElementsByClassName("media-card")
         expand()
-        OBSERVER_SHOWS.observe(e, {childList: true, subtree: false});
-        OBSERVER_TRAILER.observe(document.getElementById("app"), {childList: true, subtree: false});
+        OBSERVER.observe(document.getElementById("app"), { childList: true, subtree: true });
     });
 
 // window.addEventListener('message', function (msgEvt) {
