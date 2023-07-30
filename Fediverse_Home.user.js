@@ -5,12 +5,12 @@
 // @grant       GM_registerMenuCommand
 // @grant       GM_setValue
 // @grant       GM_getValue
-// @version     1.0
+// @version     1.0.1
 // @author      noccu
-// @description Open Fediverse remotes on your local instance. Currently supports Misskey & Mastodon.
+// @description Open Fediverse remote profiles on your local instance. Currently supports Misskey & Mastodon.
 // ==/UserScript==
 
-t = setInterval(check, 200)
+const t = setInterval(check, 200)
 setTimeout(() => clearInterval(t), 25000)
 var HOME
 
@@ -36,7 +36,7 @@ function check() {
 
 function setHome() {
     if (HOME) {
-        newHome = confirm(`Replace ${HOME} as home instance?`)
+        let newHome = confirm(`Replace ${HOME} as home instance?`)
     }
     if (!newHome) { return }
     GM_setValue("fediHome", location.origin)
@@ -48,6 +48,6 @@ function takeHome() {
         alert("No home instance set yet")
         return
     }
-    user = location.pathname.substring(1)
+    let user = location.pathname.substring(1)
     window.location = `${HOME}/${user}@${location.host}`
 }
