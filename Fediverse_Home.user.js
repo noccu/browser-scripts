@@ -5,7 +5,7 @@
 // @grant       GM_registerMenuCommand
 // @grant       GM_setValue
 // @grant       GM_getValue
-// @version     1.0.1
+// @version     1.0.2
 // @author      noccu
 // @description Open Fediverse remote profiles on your local instance. Currently supports Misskey & Mastodon.
 // ==/UserScript==
@@ -36,7 +36,7 @@ function check() {
 
 function setHome() {
     if (HOME) {
-        let newHome = confirm(`Replace ${HOME} as home instance?`)
+        var newHome = confirm(`Replace ${HOME} as home instance?`)
     }
     if (!newHome) { return }
     GM_setValue("fediHome", location.origin)
