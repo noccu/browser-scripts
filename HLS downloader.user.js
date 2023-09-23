@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        HLS stream downloader
 // @description Allows downloading of video streams in m3u8/ts format. Extracted from my old twitter script, may not work everywhere.
-// @version     0.3
+// @version     0.4
 // @author      noccu
 // @namespace   https://github.com/noccu
 // @match       *://*/*
@@ -14,11 +14,10 @@ GM_registerMenuCommand("HLS Download", download);
 GM_registerMenuCommand("HLS List", showList);
 
 //Settings
-const useDocTitle = false;
 const list = [];
 var listShown;
 
-function download(url) {
+function download(url, type) {
     var a = document.createElement("a");
     a.id = "hlsd"; //for debugging
     if (!url) {
@@ -26,13 +25,21 @@ function download(url) {
     }
 
     if (url && url.startsWith("http")) {
+      let name = prompt("Name") || document.title  //  url.split(/\/|\./).slice(-2,-1)[0]
+      if (type == "mp4") {
+          a.href = url;
+          a.download =  name + ".mp4";
+          a.click();
+      }
+      else {
         createVideoURL(url)
         .then(vid => {
             // console.log(vid);
             a.href = vid;
-            a.download = (prompt("Name") || useDocTitle ? document.title : url.split(/\/|\./).slice(-2,-1)[0]) + ".ts";
+            a.download = name + ".ts";
             a.click();
         })
+      }
     }
     else { alert("Invalid input") }
 }
@@ -50,7 +57,7 @@ function showList() {
         ul.style = "background-color: black;list-style: none;padding: 1em;color:white !important;";
         cont.appendChild(ul);
         cont.addEventListener("click", e => {
-            if (e.target.href) download(e.target.href || e.target.url);
+            if (e.target.href) download(e.target.href || e.target.url, e.target.type);
             if (!e.shiftKey) {
                 cont.style.display = "none";
             }
@@ -69,6 +76,7 @@ function showList() {
         a.style = "color: white !important";
         li.url = e.url;
         a.url = e.url;
+        a.type = e.type;
         li.appendChild(a);
         listShown.ul.appendChild(li);
     })
@@ -78,7 +86,7 @@ XMLHttpRequest.prototype.realSend = XMLHttpRequest.prototype.send;
 XMLHttpRequest.prototype.send = function(value) {
     this.addEventListener("load", function ic () {
         if (/\.m3u8(?:\?|$)/.test(this.responseURL)) {
-            list.push({page: document.title, url: this.responseURL});
+            list.push({page: document.title, url: this.responseURL, type: "hls"});
         }
     }, {passive: true, once: true});
     this.realSend(value);
@@ -222,4 +230,20 @@ function fetchVideo(pd) {
         console.log("Last part: " + partN);
         timeoutInterval = setInterval(timeoutCheck, 100000);
     });
+}
+
+function findMP4() {
+  setTimeout(() => {
+    let video = document.querySelector("video[src*='.mp4']");
+    if (video) {
+      list.push({page: document.title, url: video.src, type:"mp4"});
+    }
+  }
+  , 1500)
+}
+
+if (document.readyState !== 'complete') {  // Loading hasn't finished yet
+  window.addEventListener('load', findMP4);
+} else {  // `DOMContentLoaded` has already fired
+  findMP4();
 }
