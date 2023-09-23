@@ -228,7 +228,7 @@ function fetchVideo(pd) {
             partN++;
         }
         console.log("Last part: " + partN);
-        timeoutInterval = setInterval(timeoutCheck, 100000);
+        timeoutInterval = setInterval(timeoutCheck.bind(this), 100000);
     });
 }
 
