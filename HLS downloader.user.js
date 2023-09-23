@@ -43,10 +43,11 @@ function showList() {
         return;
     }
     else {
+        if (list.length == 0) return;
         let cont = document.createElement("div");
-        cont.style = "position: fixed;display: flex;width: 100%;top: 20%;justify-content: center;"
+        cont.style = "position: fixed;display: flex;width: 100%;top: 20%;justify-content: center;z-index: 999;"
         let ul = document.createElement("ul");
-        ul.style = "background-color: black;list-style: none;padding: 1em;color:white;";
+        ul.style = "background-color: black;list-style: none;padding: 1em;color:white !important;";
         cont.appendChild(ul);
         cont.addEventListener("click", e => {
             if (e.target.url) download(e.target.url);
@@ -169,7 +170,7 @@ function fetchVideo(pd) {
     }
 
     async function downloadPart(part, r) {
-        console.log("Downloading part " + part.idx);
+        //console.log("Downloading part " + part.idx);
         //TODO: Error handling as fetch will throw if rejected.
         let response = await fetch(part.url); //fetch
         console.log("Downloaded part " + part.idx);
@@ -196,6 +197,7 @@ function fetchVideo(pd) {
              .catch(e);
             partN++;
         }
+        console.log("Last part: " + partN);
         timeoutInterval = setInterval(timeoutCheck, 100000);
     });
 }
