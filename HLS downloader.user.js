@@ -134,13 +134,13 @@ function getPlaylistData(plUrl) {
                 parsedData.streams.push({
                     bitrate: parseInt(p[4]),
                     res: p[6],
-                    url: nextLine.startsWith("http") ? nextLine : host + nextLine
+                    url: createPartUrl(plUrl, nextLine)
                 });
             }
             else if (p[0] == "#EXTINF") {
                 let nextLine = lines[++i];
                 parsedData.type = "media";
-                parsedData.dataParts.push(nextLine.startsWith("http") ? nextLine : host + nextLine);
+                parsedData.dataParts.push(createPartUrl(plUrl, nextLine));
             }
         }
 
@@ -148,6 +148,16 @@ function getPlaylistData(plUrl) {
     }
 
     return new Promise( (r,e) =>  getPlaylist(plUrl).then( d => parse(d, r) ).catch(err => e(err)) );
+}
+
+function createPartUrl(plUrl, partUrl) {
+  let url = new URL(plUrl);
+
+  if (partUrl.startsWith("http")) return partUrl;
+  else {
+    if (partUrl.match(/\//) > 1) return url.origin + partUrl;
+    else return plUrl.replace(/\/[^/]+$/, "/" + partUrl)
+  }
 }
 
 // {PlaylistData} -> Promise (Resolve: string (BlobURL))
