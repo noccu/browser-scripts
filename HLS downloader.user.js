@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        HLS stream downloader
 // @description Allows downloading of video streams in m3u8/ts format. Extracted from my old twitter script, may not work everywhere.
-// @version     0.2
+// @version     0.3
 // @author      noccu
 // @namespace   https://github.com/noccu
 // @match       *://*/*
@@ -50,20 +50,26 @@ function showList() {
         ul.style = "background-color: black;list-style: none;padding: 1em;color:white !important;";
         cont.appendChild(ul);
         cont.addEventListener("click", e => {
-            if (e.target.url) download(e.target.url);
+            if (e.target.href) download(e.target.href || e.target.url);
             if (!e.shiftKey) {
                 cont.style.display = "none";
             }
+            e.preventDefault()
         });
         document.body.appendChild(cont);
         listShown = {cont, ul};
     }
 
     list.forEach(e => {
-        let li = document.createElement("li");
-        li.textContent = e.url; //`Download ${e.page}`;
+        let li = document.createElement("li"),
+            a = document.createElement("a");
+        a.textContent = a.href = e.url; //`Download ${e.page}`;
+        a.download = `${e.page}.${e.type}`;
         li.style.cursor = "pointer";
+        a.style = "color: white !important";
         li.url = e.url;
+        a.url = e.url;
+        li.appendChild(a);
         listShown.ul.appendChild(li);
     })
 }
