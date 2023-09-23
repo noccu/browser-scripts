@@ -20,7 +20,9 @@ var listShown;
 function download(url, type) {
     var a = document.createElement("a");
     a.id = "hlsd"; //for debugging
-    if (!url) {
+    document.body.appendChild(a)
+    console.log(`Download URL is: ${url}`)
+    if (url.constructor != String) {
         url = prompt("Playlist URL", "url/to/playlist.m3u8");
     }
 
