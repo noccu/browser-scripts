@@ -204,6 +204,12 @@ function fetchVideo(pd) {
         else if (doneCount == lastDoneCheck) throw "Download timed out";
     }
 
+    window.hlsd = {
+      "blobs": partBlobs,
+      "pd": pd,
+      "downloadPart": downloadPart,
+      "constructFullBlob": constructFullBlob
+    }
     //takes in an array or URLs to .ts
     return new Promise(function (r, e) {
         var partN = 0;
