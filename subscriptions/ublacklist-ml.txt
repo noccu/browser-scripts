@@ -1,3 +1,5 @@
+# The focus of this list is on image results for artists, but it can be used more generally.
+/doesnotexist\./
 *://civitai.com/*
 *://midlibrary.io/*
 *://*.prompthero.com/*
@@ -9,7 +11,16 @@
 *://*.aiartes.com/*
 *://*.midjourney.com/*
 *://*.stability.ai/*
-*://*.redbubble.com/* # Overrun with crap and doesn't provide any useful results most times
 *://*.craiyon.com/*
 *://pixai.art/*
 *://tensor.art/*
+*://fantasfic.fun/*
+*://neural.love/*
+*://*.nightcafe.studio/*
+*://*.zmo.ai/*
+*://aiartshop.com/*
+*://*.plugger.ai/*
+*://kawaiiai.com/*
+*://*.artguru.ai/*
+*://hotpot.ai/*
+*://getimg.ai/*

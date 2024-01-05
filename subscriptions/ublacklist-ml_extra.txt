@@ -1,0 +1,8 @@
+# Aggressive blocking, because fuck that shit.
+# Yes it will have a number of false positives, especially if you're looking for articles or such.
+title/AI[ \-]?(?:anime ?)?(?:illustration|生成|art|generat[eo]|filter|wallpaper)/i
+title/using ai/i
+/.ai\//
+*://deviantart.com/* # Overrun with crap
+*://artstation.com/* # Overrun with crap
+*://*.redbubble.com/* # Overrun with crap and doesn't provide any useful results most times
