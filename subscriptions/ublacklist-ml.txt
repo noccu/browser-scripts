@@ -1,0 +1,15 @@
+*://civitai.com/*
+*://midlibrary.io/*
+*://*.prompthero.com/*
+*://*.prompthunt.com/*
+*://*.openart.ai/*
+*://*.playgroundai.com/*
+*://*.starryai.com/*
+*://*.artvy.ai/*
+*://*.aiartes.com/*
+*://*.midjourney.com/*
+*://*.stability.ai/*
+*://*.redbubble.com/* # Overrun with crap and doesn't provide any useful results most times
+*://*.craiyon.com/*
+*://pixai.art/*
+*://tensor.art/*
