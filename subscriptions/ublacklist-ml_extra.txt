@@ -3,6 +3,8 @@
 title/AI[ \-]?(?:anime ?)?(?:illustration|生成|art|generat[eo]|filter|wallpaper)/i
 title/using ai/i
 /.ai\//
+/artvy/ # AI platform, tags and reposts
 *://*.deviantart.com/* # Overrun with crap
 *://*.artstation.com/* # Overrun with crap
 *://*.redbubble.com/* # Overrun with crap and doesn't provide any useful results most times
+*://*.freepik.com/* # Allows and encourages AI imagery

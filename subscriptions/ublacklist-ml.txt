@@ -24,3 +24,8 @@
 *://*.artguru.ai/*
 *://*.hotpot.ai/*
 *://*.getimg.ai/*
+*://*.aieasypic.com/*
+*://*.lexica.art/*
+*://*.krea.ai/*
+*://*.creativefabrica.com/*
+*://*.arthub.ai/*
