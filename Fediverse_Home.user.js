@@ -2,28 +2,29 @@
 // @name        Fediverse@Home
 // @namespace   https://github.com/noccu
 // @match       *://*/*
+// @run-at      document-start
 // @grant       GM_registerMenuCommand
 // @grant       GM_setValue
 // @grant       GM_getValue
-// @version     1.0.2
+// @version     1.0.3
 // @author      noccu
 // @description Open Fediverse remote profiles on your local instance. Currently supports Misskey & Mastodon.
 // ==/UserScript==
 
-const t = setInterval(check, 200)
-setTimeout(() => clearInterval(t), 25000)
+// const SUPPORTED_PLAFORMS = ["misskey_app", "mastodon"]
 var HOME
 
 function check() {
-    // Are we on a fedi instance? (Dumb ver.)
-    try { misskey_app }
-    catch {
-        try { mastodon }
-        catch { return }
+    // Are we on a fedi instance? (Slightly less dumb ver.)
+    switch (true) {
+        case document.querySelector("meta[name^=app]")?.content == "Misskey":
+        case document.getElementById("mastodon") !== undefined:
+            break
+        default:
+            return
     }
 
     // We are
-    clearInterval(t)
     HOME = GM_getValue("fediHome")
     if (HOME && HOME == location.origin) {
         return
@@ -51,3 +52,5 @@ function takeHome() {
     let user = location.pathname.substring(1)
     window.location = `${HOME}/${user}@${location.host}`
 }
+
+window.addEventListener("DOMContentLoaded", check)
