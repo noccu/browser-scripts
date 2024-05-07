@@ -6,7 +6,7 @@
 // @grant       GM_registerMenuCommand
 // @grant       GM_setValue
 // @grant       GM_getValue
-// @version     1.0.3
+// @version     1.1.0
 // @author      noccu
 // @description Open Fediverse remote profiles on your local instance. Currently supports Misskey & Mastodon.
 // ==/UserScript==
