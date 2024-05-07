@@ -30,9 +30,7 @@ function check() {
         return
     }
     GM_registerMenuCommand("Set as home instance", setHome)
-    if (location.pathname.startsWith("/@")) {
-        GM_registerMenuCommand("Open on home instance", takeHome)
-    }
+    GM_registerMenuCommand("Open on home instance", takeHome)
 }
 
 function setHome() {
@@ -45,8 +43,9 @@ function setHome() {
 }
 
 function takeHome() {
+    if (!location.pathname.startsWith("/@")) return
     if (!HOME) {
-        alert("No home instance set yet")
+        alert("No home instance set.")
         return
     }
     let user = location.pathname.substring(1)
