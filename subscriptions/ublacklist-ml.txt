@@ -30,3 +30,9 @@
 *://*.creativefabrica.com/*
 *://*.arthub.ai/*
 *://*.anmosugoi.com/*
+*://*.88stacks.com/*
+*://*.huggingface.co/*
+*://*.talkie-ai.com/*
+*://*.corsairai.org/*
+*://*.goodfon.com/*
+*://*.stablediffusionweb.com/*
