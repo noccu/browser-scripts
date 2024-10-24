@@ -36,3 +36,4 @@
 *://*.corsairai.org/*
 *://*.goodfon.com/*
 *://*.stablediffusionweb.com/*
+*://*.shedevrum.ai/*
