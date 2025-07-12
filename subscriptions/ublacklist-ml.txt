@@ -37,3 +37,5 @@
 *://*.goodfon.com/*
 *://*.stablediffusionweb.com/*
 *://*.shedevrum.ai/*
+*://*.civitaic.com/*
+*://ar.inspiredpencil.com/*
