@@ -102,7 +102,7 @@ async function domExist(selector, interval, timeout) {
     throw new Error("Dom search failed");
 }
 
-domExist(".chart-view div", 500, 15)
+domExist(".chart-view > div:not([class])", 500, 15)
     .then(e => {
         CARDS = e.getElementsByClassName("media-card")
         expand()
