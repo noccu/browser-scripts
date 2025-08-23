@@ -3,38 +3,39 @@
 // @namespace   yt_fuckery
 // @match       https://www.youtube.com/*
 // @grant       none
-// @version     1.0
+// @version     1.1
 // @author      noccu
 // @description Add thumbnail link to videos. Check the … menu.
 // ==/UserScript==
 
 function getThumb(el) {
-    // videoRoot = el.closest("ytd-rich-item-renderer") || el.closest("ytd-grid-video-renderer")
-    videoRoot = el.closest("#dismissible")
-    thumbEl = videoRoot.querySelector("img.yt-core-image")
+    thumbEl = el.querySelector("img.ytCoreImageHost")
     return thumbEl.src.split("?")[0].replace("hqdefault", "hq720")
 }
 
-const THUMB_BUTTON = document.createElement("tp-yt-paper-item")
+const THUMB_BUTTON = document.createElement("yt-list-item-view-model")
 const THUMB_LINK = document.createElement("a")
 THUMB_LINK.textContent = "Thumbnail"
-THUMB_BUTTON.style.minHeight = "2em"
+THUMB_BUTTON.style.color = "inherit"
+THUMB_BUTTON.className = "yt-list-item-view-model-wiz yt-list-item-view-model-wiz__container"
+THUMB_LINK.className = "yt-list-item-view-model-wiz__title"
 THUMB_BUTTON.append(THUMB_LINK)
 var BUTTON_ADDED = false
 
 function addButton() {
     if (BUTTON_ADDED) return
-    document.querySelector("ytd-menu-service-item-renderer[has-separator]").before(THUMB_BUTTON)
+    document.querySelector("yt-download-list-item-view-model").before(THUMB_BUTTON)
     BUTTON_ADDED = true
 }
 
 function updateThumbUrl(e) {
-    if (e.target.tagName != "DIV") return
-    let target = e.target.parentElement?.parentElement
-    if (!target) return
-    if (target.tagName == "YT-ICON" && target.classList.contains("ytd-menu-renderer")) {
+    if (e.target.tagName != "DIV" || !e.target.className.endsWith("fill")) {
+        return
+    }
+    const videoRoot = e.target.closest("div.yt-lockup-view-model-wiz")
+    if (videoRoot) {
         addButton()
-        THUMB_LINK.href = getThumb(e.target)
+        THUMB_LINK.href = getThumb(videoRoot)
     }
 }
 
