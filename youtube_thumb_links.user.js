@@ -3,7 +3,7 @@
 // @namespace   yt_fuckery
 // @match       https://www.youtube.com/*
 // @grant       none
-// @version     2
+// @version     2.1
 // @author      noccu
 // @description Add thumbnail link to videos. Check the … menu.
 // ==/UserScript==
@@ -16,7 +16,7 @@ var CURRENTVID_ADDED = false
 
 function getPreviewThumbUrl(el) {
     thumbEl = el.querySelector("img.ytCoreImageHost")
-    return thumbEl.src.split("?")[0].replace("hqdefault", "hq720")
+    return thumbEl.src.split("?")[0].replace("hqdefault", "maxresdefault")
 }
 
 // Small thumbnails in a list/feed.
