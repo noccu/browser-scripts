@@ -22,11 +22,10 @@ function getPreviewThumbUrl(el) {
 // Small thumbnails in a list/feed.
 function createPreviewLink() {
     const btn = document.createElement("yt-list-item-view-model")
-    btn.style.color = "inherit"
-    btn.className = "yt-list-item-view-model yt-list-item-view-model__container"
+    btn.className = "ytListItemViewModelHost ytListItemViewModelContainer"
     const link = document.createElement("a")
     link.textContent = "Thumbnail"
-    link.className = "yt-list-item-view-model__title"
+    link.className = "ytListItemViewModelTitle"
     btn.append(link)
     return [btn, link]
 }
@@ -77,7 +76,7 @@ function updateCurrentVidUrl() {
 }
 
 function tryAddButtons(e) {
-    if (e.target.tagName != "DIV" || !e.target.className.endsWith("fill")) {
+    if (e.target.tagName != "DIV" || !e.target.className.endsWith("Fill")) {
         return
     }
     updateCurrentVidUrl()
